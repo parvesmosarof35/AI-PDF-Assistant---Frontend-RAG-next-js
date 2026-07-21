@@ -43,9 +43,10 @@ export default function PdfUploader({ onUploadSuccess }: { onUploadSuccess: (fil
       
       setStatus("success");
       onUploadSuccess(file.name);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus("error");
-      setErrorMsg(err.message || "Failed to upload PDF.");
+      const errorMessage = err instanceof Error ? err.message : "Failed to upload PDF.";
+      setErrorMsg(errorMessage);
     }
   };
 

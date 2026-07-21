@@ -7,7 +7,7 @@ type Message = {
   id: string;
   role: "user" | "ai";
   content: string;
-  sources?: any[];
+  sources?: { source: string; page: number }[];
 };
 
 export default function ChatInterface({ isPdfUploaded }: { isPdfUploaded: boolean }) {
@@ -66,10 +66,11 @@ export default function ChatInterface({ isPdfUploaded }: { isPdfUploaded: boolea
       };
 
       setMessages((prev) => [...prev, aiMessage]);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       setMessages((prev) => [
         ...prev,
-        { id: Date.now().toString(), role: "ai", content: `Error: ${error.message}` },
+        { id: Date.now().toString(), role: "ai", content: `Error: ${errorMessage}` },
       ]);
     } finally {
       setIsLoading(false);
