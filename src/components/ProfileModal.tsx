@@ -39,7 +39,7 @@ export default function ProfileModal({ isOpen, onClose, user, onUpdate }: Profil
 
     try {
       const token = localStorage.getItem("token");
-      const apiUrl = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:8002";
+      const apiUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://ai-pdf-assistant-authservicego-kkuhec-86a036-35-180-95-158.sslip.io";
       
       const res = await fetch(`${apiUrl}/api/user/profile`, {
         method: "PUT",
@@ -73,7 +73,7 @@ export default function ProfileModal({ isOpen, onClose, user, onUpdate }: Profil
 
     try {
       const token = localStorage.getItem("token");
-      const apiUrl = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:8002";
+      const apiUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://ai-pdf-assistant-authservicego-kkuhec-86a036-35-180-95-158.sslip.io";
       
       const res = await fetch(`${apiUrl}/api/user/password`, {
         method: "PUT",

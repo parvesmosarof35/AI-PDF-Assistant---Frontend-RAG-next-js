@@ -30,7 +30,7 @@ export default function PdfUploader({ onUploadSuccess }: { onUploadSuccess: (fil
     
     try {
       // Dynamically use localhost if developing locally, otherwise use production backend
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://ai-pdf-assistant-backend-vasqdq-11c032-35-180-95-158.sslip.io";
         
       const token = localStorage.getItem("token");
 
