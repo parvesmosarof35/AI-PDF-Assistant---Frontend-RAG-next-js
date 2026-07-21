@@ -13,9 +13,12 @@ RUN npm install
 # Copy the entire frontend directory
 COPY . .
 
-# Pass the API URL as a build argument
+# Pass the API URLs as build arguments
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+ARG NEXT_PUBLIC_AUTH_URL
+ENV NEXT_PUBLIC_AUTH_URL=$NEXT_PUBLIC_AUTH_URL
 
 # Build the Next.js application
 RUN npm run build
