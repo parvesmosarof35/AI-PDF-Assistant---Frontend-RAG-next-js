@@ -10,7 +10,15 @@ type Message = {
   sources?: { source: string; page: number }[];
 };
 
-export default function ChatInterface({ isPdfUploaded }: { isPdfUploaded: boolean }) {
+export default function ChatInterface({ 
+  isPdfUploaded, 
+  currentSessionId, 
+  onSessionUpdate 
+}: { 
+  isPdfUploaded: boolean;
+  currentSessionId: string | null;
+  onSessionUpdate: (sessionId: string) => void;
+}) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -21,6 +29,39 @@ export default function ChatInterface({ isPdfUploaded }: { isPdfUploaded: boolea
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Fetch messages if a session is selected
+  useEffect(() => {
+    if (currentSessionId) {
+      const fetchSessionChats = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+          
+          const res = await fetch(`${apiUrl}/api/chat/history/${currentSessionId}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (res.ok && data.length > 0) {
+            const formattedMessages = data.map((d: any) => [
+              { id: d._id + "_q", role: "user", content: d.question },
+              { id: d._id + "_a", role: "ai", content: d.answer }
+            ]).flat();
+            setMessages(formattedMessages);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      };
+      fetchSessionChats();
+    } else {
+      setMessages([{
+        id: "1",
+        role: "ai",
+        content: "Hello! Upload a PDF first, then ask me anything about it.",
+      }]);
+    }
+  }, [currentSessionId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,15 +87,20 @@ export default function ChatInterface({ isPdfUploaded }: { isPdfUploaded: boolea
 
     try {
       // Dynamically use localhost if developing locally, otherwise use production backend
-      const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-      const apiUrl = isLocal 
-        ? "http://localhost:8000" 
-        : "https://ai-pdf-assistant-backend-vasqdq-11c032-35-180-95-158.sslip.io";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
         
+      const token = localStorage.getItem("token");
+
       const response = await fetch(`${apiUrl}/api/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: userMessage.content }),
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          question: userMessage.content,
+          session_id: currentSessionId
+        }),
       });
 
       const data = await response.json();
@@ -69,6 +115,10 @@ export default function ChatInterface({ isPdfUploaded }: { isPdfUploaded: boolea
         content: data.answer,
         sources: data.sources,
       };
+
+      if (!currentSessionId && data.session_id) {
+        onSessionUpdate(data.session_id);
+      }
 
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error: unknown) {
