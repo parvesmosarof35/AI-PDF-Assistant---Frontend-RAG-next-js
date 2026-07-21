@@ -29,7 +29,12 @@ export default function PdfUploader({ onUploadSuccess }: { onUploadSuccess: (fil
     formData.append("file", file);
     
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      // Dynamically use localhost if developing locally, otherwise use production backend
+      const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+      const apiUrl = isLocal 
+        ? "http://localhost:8000" 
+        : "https://ai-pdf-assistant-backend-vasqdq-11c032-35-180-95-158.sslip.io";
+        
       const response = await fetch(`${apiUrl}/api/upload`, {
         method: "POST",
         body: formData,
