@@ -37,8 +37,12 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(data.user));
       
       router.push("/");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -105,7 +109,7 @@ export default function Login() {
         </form>
 
         <div className="mt-6 text-center text-sm text-slate-400">
-          Don't have an account? <Link href="/signup" className="text-blue-400 hover:text-blue-300 transition-colors">Sign up</Link>
+          Don&apos;t have an account? <Link href="/signup" className="text-blue-400 hover:text-blue-300 transition-colors">Sign up</Link>
         </div>
       </div>
     </div>

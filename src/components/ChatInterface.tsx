@@ -42,15 +42,19 @@ export default function ChatInterface({
             headers: { "Authorization": `Bearer ${token}` }
           });
           const data = await res.json();
-          if (res.ok && data.length > 0) {
-            const formattedMessages = data.map((d: any) => [
-              { id: d._id + "_q", role: "user", content: d.question },
-              { id: d._id + "_a", role: "ai", content: d.answer }
+          if (res.ok && Array.isArray(data)) {
+            const formattedMessages: Message[] = data.map((d: { _id: string; question: string; answer: string }) => [
+              { id: d._id + "_q", role: "user" as const, content: d.question },
+              { id: d._id + "_a", role: "ai" as const, content: d.answer }
             ]).flat();
             setMessages(formattedMessages);
           }
-        } catch (e) {
-          console.error(e);
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            console.error(err.message);
+          } else {
+            console.error("Failed to load history");
+          }
         }
       };
       fetchSessionChats();

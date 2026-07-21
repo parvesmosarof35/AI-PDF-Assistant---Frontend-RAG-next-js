@@ -7,11 +7,22 @@ import ChatInterface from "@/components/ChatInterface";
 import ProfileModal from "@/components/ProfileModal";
 import { Sparkles, MessageSquare, Plus, LogOut, Settings } from "lucide-react";
 
+type Session = {
+  _id: string;
+  title?: string;
+};
+
+type UserType = {
+  name?: string;
+  email?: string;
+  is_verified?: boolean;
+};
+
 export default function Home() {
   const [uploadedPdf, setUploadedPdf] = useState<string | null>(null);
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserType | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const router = useRouter();
 

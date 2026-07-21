@@ -3,11 +3,17 @@
 import { useState } from "react";
 import { X, User, Mail, Lock, Loader2, ShieldCheck } from "lucide-react";
 
+type UserType = {
+  name?: string;
+  email?: string;
+  is_verified?: boolean;
+};
+
 type ProfileModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  user: any;
-  onUpdate: (user: any) => void;
+  user: UserType | null;
+  onUpdate: (user: UserType) => void;
 };
 
 export default function ProfileModal({ isOpen, onClose, user, onUpdate }: ProfileModalProps) {
@@ -49,8 +55,12 @@ export default function ProfileModal({ isOpen, onClose, user, onUpdate }: Profil
 
       onUpdate(data.user);
       setMessage({ text: "Profile updated successfully!", type: "success" });
-    } catch (err: any) {
-      setMessage({ text: err.message, type: "error" });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setMessage({ text: err.message, type: "error" });
+      } else {
+        setMessage({ text: "An unknown error occurred", type: "error" });
+      }
     } finally {
       setLoadingProfile(false);
     }
@@ -80,8 +90,12 @@ export default function ProfileModal({ isOpen, onClose, user, onUpdate }: Profil
       setOldPassword("");
       setNewPassword("");
       setMessage({ text: "Password changed successfully!", type: "success" });
-    } catch (err: any) {
-      setMessage({ text: err.message, type: "error" });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setMessage({ text: err.message, type: "error" });
+      } else {
+        setMessage({ text: "An unknown error occurred", type: "error" });
+      }
     } finally {
       setLoadingPassword(false);
     }

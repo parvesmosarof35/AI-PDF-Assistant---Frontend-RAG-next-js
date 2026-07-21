@@ -32,8 +32,12 @@ export default function ForgotPassword() {
       }
 
       setMessage(data.message);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -53,7 +57,7 @@ export default function ForgotPassword() {
             <Sparkles className="text-white" size={24} />
           </div>
           <h2 className="text-2xl font-bold text-white">Reset Password</h2>
-          <p className="text-slate-400 text-sm mt-1 text-center">Enter your email and we'll send you a link to reset your password</p>
+          <p className="text-slate-400 text-sm mt-1 text-center">Enter your email and we&apos;ll send you a link to reset your password</p>
         </div>
 
         {error && (
