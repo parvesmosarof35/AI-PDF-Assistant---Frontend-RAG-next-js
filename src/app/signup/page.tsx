@@ -11,6 +11,7 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -29,15 +30,15 @@ export default function Signup() {
 
       const data = await res.json();
       
-      if (!res.ok) {
-        throw new Error(data.error || "Signup failed");
+      if (res.ok) {
+        setSuccess(true);
+        // Do NOT log the user in. Redirect them to the verification page
+        setTimeout(() => {
+          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        }, 2000);
+      } else {
+        setError(data.error || "Signup failed");
       }
-
-      // Save token
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      
-      router.push("/");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -59,6 +60,12 @@ export default function Signup() {
           <h2 className="text-2xl font-bold text-white">Create Account</h2>
           <p className="text-slate-400 text-sm mt-1">Join to save your AI chats</p>
         </div>
+
+        {success && (
+          <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-3 rounded-lg text-sm text-center mb-6">
+            Signup successful! Redirecting to email verification...
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm text-center mb-6">

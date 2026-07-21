@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { X, User, Mail, Lock, Loader2, ShieldCheck } from "lucide-react";
+import { X, User, Mail, Lock, Loader2, ShieldCheck, Camera } from "lucide-react";
 
 type UserType = {
   name?: string;
   email?: string;
   is_verified?: boolean;
+  avatar_url?: string;
 };
 
 type ProfileModalProps = {
@@ -55,6 +56,44 @@ export default function ProfileModal({ isOpen, onClose, user, onUpdate }: Profil
 
       onUpdate(data.user);
       setMessage({ text: "Profile updated successfully!", type: "success" });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setMessage({ text: err.message, type: "error" });
+      } else {
+        setMessage({ text: "An unknown error occurred", type: "error" });
+      }
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    setLoadingProfile(true);
+    setMessage({ text: "", type: "" });
+
+    try {
+      const token = localStorage.getItem("token");
+      const apiUrl = process.env.NEXT_PUBLIC_AUTH_URL || "https://ai-pdf-assistant-authservicego-kkuhec-86a036-35-180-95-158.sslip.io";
+      
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const res = await fetch(`${apiUrl}/api/user/avatar`, {
+        method: "POST",
+        headers: { 
+          "Authorization": `Bearer ${token}`
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to upload avatar");
+
+      onUpdate(data.user);
+      setMessage({ text: "Avatar uploaded successfully!", type: "success" });
     } catch (err: unknown) {
       if (err instanceof Error) {
         setMessage({ text: err.message, type: "error" });
@@ -138,7 +177,25 @@ export default function ProfileModal({ isOpen, onClose, user, onUpdate }: Profil
           )}
 
           {activeTab === "profile" ? (
-            <form onSubmit={handleProfileUpdate} className="space-y-4">
+            <div className="space-y-6">
+              <div className="flex flex-col items-center">
+                <div className="relative group cursor-pointer">
+                  <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-800 border-2 border-slate-700 flex items-center justify-center">
+                    {user?.avatar_url ? (
+                      <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="text-slate-500" size={40} />
+                    )}
+                  </div>
+                  <label className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <Camera className="text-white" size={24} />
+                    <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={loadingProfile} />
+                  </label>
+                </div>
+                <span className="text-xs text-slate-400 mt-2">Click to change avatar</span>
+              </div>
+
+              <form onSubmit={handleProfileUpdate} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Email (Read Only)</label>
                 <div className="relative">
@@ -179,6 +236,7 @@ export default function ProfileModal({ isOpen, onClose, user, onUpdate }: Profil
                 {loadingProfile ? <Loader2 size={18} className="animate-spin" /> : "Save Changes"}
               </button>
             </form>
+            </div>
           ) : (
             <form onSubmit={handlePasswordUpdate} className="space-y-4">
               <div>

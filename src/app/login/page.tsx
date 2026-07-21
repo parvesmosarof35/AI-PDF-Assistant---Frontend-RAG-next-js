@@ -29,6 +29,10 @@ export default function Login() {
       const data = await res.json();
       
       if (!res.ok) {
+        if (data.needs_verification) {
+          router.push(`/verify-email?email=${encodeURIComponent(data.email || email)}`);
+          return;
+        }
         throw new Error(data.error || "Login failed");
       }
 
